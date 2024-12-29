@@ -8,6 +8,7 @@ import { Toaster } from 'react-hot-toast';
 import Product from "./pages/Products.jsx";
 import Sales from "./pages/Sales.jsx";
 import Employee from "./pages/Employee.jsx";
+import ChangePassword from "./components/changePassword.jsx";
 
 import Forecasting from "./pages/forecast";
 import Prediction from "./pages/Prediction";
@@ -20,7 +21,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-
+        
         {/* Dashboard Layout with nested routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
@@ -29,6 +30,7 @@ function App() {
           <Route path="prediction" element={<Prediction />} />
           <Route path="employee" element={<Employee/>} />
           <Route path="forecasting" element={<Forecasting/>} />
+          <Route path="change-password" element={<ChangePassword />} />
 
         </Route>
         

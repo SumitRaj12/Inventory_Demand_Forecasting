@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-function Navbar() {
+function Navbar({role}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -24,12 +24,17 @@ function Navbar() {
       toast.success(resp.data.message)
       navigate('/')
     } catch (error) {
-      
+      toast.error("Error logging out")
     }
+  }
+
+  const handleChangePassword = async()=>{
+    navigate('/dashboard/change-password')
   }
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
+    console.log("From nav bar",role)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -57,10 +62,16 @@ function Navbar() {
               <CgProfile size={40} className="text-gray-500" />
               <h2 className="text-lg font-semibold">John Doe</h2>
               <p className="text-sm text-gray-600">johndoe@example.com</p>
+              <p className="text-sm text-black">{role?"Admin":"Employee"}</p>
             </div>
             <ul className="text-black">
               <button onClick={handleLogout} className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-red-600">
                 Logout
+              </button>
+            </ul>
+            <ul className="text-black">
+              <button onClick={handleChangePassword} className="hover:bg-gray-100 px-4 py-2 cursor-pointer text-green-600">
+                Change Password
               </button>
             </ul>
           </div>

@@ -16,7 +16,7 @@ function DashboardLayout() {
       <div className="flex-1 flex flex-col">
         {/* Navbar */}
         <div className="w-full">
-          <Navbar />
+          <Navbar role={role} />
         </div>
 
         {/* Outlet (for nested routes) */}
