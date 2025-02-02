@@ -1,12 +1,14 @@
 import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { SalesContext } from "@/context/salesUpdate.context";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const {updateRole} = useContext(SalesContext)
   const [formData, setFormData] = useState({
     userName: "",
     email: "",
@@ -47,6 +49,7 @@ function Login() {
         password: "",
       })
       toast.success(resp.data.message);
+      updateRole(resp.data.admin)
       setTimeout(() => navigate("/dashboard", { state: { role: resp.data.admin } }), 2000);
     } catch (error) {
       toast.error(error?.response.data.message || "An error occurred");

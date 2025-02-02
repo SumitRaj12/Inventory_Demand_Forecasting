@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { SalesContext } from "@/context/salesUpdate.context";
 
 const Employee = () => {
   const [employees, setEmployees] = useState([]);
+  const { role, updateRole } = useContext(SalesContext);
   const [newEmployee, setNewEmployee] = useState({
     EmployeeName: "",
     EmployeeEmail: "",
@@ -14,14 +16,15 @@ const Employee = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/admin/getAllEmployees", {
-        withCredentials: true,
-      });
-      if (Array.isArray(response.data)) {
-        setEmployees(response.data);
-      } else {
-        throw new Error("Invalid data format from API");
-      }
+      const response = await axios.get(
+        "http://localhost:3000/admin/getAllEmployees",
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(response.data);
+      setEmployees(response.data.employee);
+      updateRole(response.data.role);
     } catch (err) {
       console.error("Error fetching employees:", err);
     }
@@ -30,9 +33,13 @@ const Employee = () => {
   const handleAddEmployeeSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/admin/addEmployee", newEmployee, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/admin/addEmployee",
+        newEmployee,
+        {
+          withCredentials: true,
+        }
+      );
       toast.success(response.data.message);
       setNewEmployee({
         EmployeeEmail: "",
@@ -43,7 +50,7 @@ const Employee = () => {
       fetchEmployees();
     } catch (error) {
       console.error("Error adding employee:", error);
-      toast.error(error.response?.data.message)
+      toast.error(error.response?.data.message);
     }
   };
 
@@ -61,20 +68,23 @@ const Employee = () => {
       fetchEmployees();
     } catch (error) {
       console.error("Error updating employee:", error);
-      toast.error(error.response?.data.message)
+      toast.error(error.response?.data.message);
     }
   };
 
   const handleDeleteEmployee = async (email) => {
     try {
-      const response = await axios.delete(`http://localhost:3000/admin/deleteEmployee/${email}`, {
-        withCredentials: true,
-      });
+      const response = await axios.delete(
+        `http://localhost:3000/admin/deleteEmployee/${email}`,
+        {
+          withCredentials: true,
+        }
+      );
       toast.success(response.data.message);
       fetchEmployees();
     } catch (error) {
       console.error("Error deleting employee:", error);
-      toast.error(error.response?.data.message)
+      toast.error(error.response?.data.message);
     }
   };
 
@@ -88,7 +98,7 @@ const Employee = () => {
       style={{
         padding: "20px",
         fontFamily: "'Roboto', sans-serif",
-        maxWidth: "800px",
+        maxWidth: "full",
         margin: "0 auto",
         backgroundColor: "#f9f9f9",
         borderRadius: "10px",
@@ -107,22 +117,26 @@ const Employee = () => {
             >
               <b>Employee's List</b>
             </h2>
-            <button
-              onClick={() => setIsAddEmployeePage(true)}
-              style={{
-                padding: "10px 16px",
-                backgroundColor: "#008000",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "1rem",
-                marginBottom: "15px",
-                transition: "background-color 0.3s",
-              }}
-            >
-              Add Employee +
-            </button>
+            {role ? (
+              <button
+                onClick={() => setIsAddEmployeePage(true)}
+                style={{
+                  padding: "10px 16px",
+                  backgroundColor: "#008000",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                  marginBottom: "15px",
+                  transition: "background-color 0.3s",
+                }}
+              >
+                Add Employee +
+              </button>
+            ) : (
+              ""
+            )}
           </div>
 
           <table
@@ -152,41 +166,50 @@ const Employee = () => {
                   <td style={tableCellStyle}>{index + 1}</td>
                   <td style={tableCellStyle}>{employee.EmployeeName}</td>
                   <td style={tableCellStyle}>{employee.EmployeeEmail}</td>
-                  <td style={tableCellStyle}>{employee.Role}</td> {/* Displaying Role */}
+                  <td style={tableCellStyle}>{employee.Role}</td>{" "}
+                  {/* Displaying Role */}
                   <td style={tableCellStyle}>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                      <button
-                        onClick={() => {
-                          setEditingEmployee(employee);
-                          setIsAddEmployeePage(true);
-                        }}
-                        style={{
-                          backgroundColor: "#ffc107",
-                          color: "#000",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                          marginRight: "10px",
-                          border: "none",
-                          cursor: "pointer",
-                        }}
+                    {role ? (
+                      <div
+                        style={{ display: "flex", justifyContent: "center" }}
                       >
-                        Update
-                      </button>
+                        <button
+                          onClick={() => {
+                            setEditingEmployee(employee);
+                            setIsAddEmployeePage(true);
+                          }}
+                          style={{
+                            backgroundColor: "#ffc107",
+                            color: "#000",
+                            padding: "5px 10px",
+                            borderRadius: "5px",
+                            marginRight: "10px",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Update
+                        </button>
 
-                      <button
-                        onClick={() => handleDeleteEmployee(employee.EmployeeEmail)}
-                        style={{
-                          backgroundColor: "#dc3545",
-                          color: "#fff",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                          border: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                        <button
+                          onClick={() =>
+                            handleDeleteEmployee(employee.EmployeeEmail)
+                          }
+                          style={{
+                            backgroundColor: "#dc3545",
+                            color: "#fff",
+                            padding: "5px 10px",
+                            borderRadius: "5px",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-blue-500">No Action Enabled</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -206,14 +229,20 @@ const Employee = () => {
           </h3>
           <form
             onSubmit={
-              editingEmployee ? handleUpdateEmployeeSubmit : handleAddEmployeeSubmit
+              editingEmployee
+                ? handleUpdateEmployeeSubmit
+                : handleAddEmployeeSubmit
             }
           >
             <label style={formLabelStyle}>
               Name:
               <input
                 type="text"
-                value={editingEmployee ? editingEmployee.EmployeeName : newEmployee.EmployeeName}
+                value={
+                  editingEmployee
+                    ? editingEmployee.EmployeeName
+                    : newEmployee.EmployeeName
+                }
                 onChange={(e) =>
                   editingEmployee
                     ? setEditingEmployee({
@@ -233,7 +262,11 @@ const Employee = () => {
               Email:
               <input
                 type="email"
-                value={editingEmployee ? editingEmployee.EmployeeEmail : newEmployee.EmployeeEmail}
+                value={
+                  editingEmployee
+                    ? editingEmployee.EmployeeEmail
+                    : newEmployee.EmployeeEmail
+                }
                 onChange={(e) =>
                   editingEmployee
                     ? setEditingEmployee({
@@ -252,7 +285,9 @@ const Employee = () => {
             <label style={formLabelStyle}>
               Role:
               <select
-                value={editingEmployee ? editingEmployee.Role : newEmployee.Role}
+                value={
+                  editingEmployee ? editingEmployee.Role : newEmployee.Role
+                }
                 onChange={(e) =>
                   editingEmployee
                     ? setEditingEmployee({
@@ -303,10 +338,10 @@ const Employee = () => {
           </form>
         </div>
       )}
+      
     </div>
   );
 };
-
 
 const tableHeaderStyle = {
   padding: "10px",

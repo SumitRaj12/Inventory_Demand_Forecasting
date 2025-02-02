@@ -8,6 +8,7 @@ const Product = () => {
   const [newProduct, setNewProduct] = useState({
     productId: "",
     productName: "",
+    region:"",
     totalStock: "",
     pricePerUnit: "",
   });
@@ -23,7 +24,7 @@ const Product = () => {
       try {
         const resp = await axios.post(
           "http://localhost:3000/api/v1/product/fetchStoreStock",
-          { location: event.target.value },
+          { region: event.target.value },
           { withCredentials: true }
         );
         const products = resp.data.products;
@@ -54,6 +55,7 @@ const Product = () => {
       );
       setProducts(response.data.products || []);
       setStores(response.data.stores || []);
+      console.log(response.data.stores)
     } catch (err) {
       console.error("Error fetching products:", err);
     }
@@ -121,6 +123,7 @@ const Product = () => {
         productName: "",
         totalStock: "",
         pricePerUnit: "",
+        region:""
       });
       setIsAddProductPage(false);
       setTrigger(!trigger);
@@ -176,7 +179,7 @@ const Product = () => {
   }, [trigger]);
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} className="w-full">
       {!isAddProductPage ? (
         <>
           <div style={headerStyle}>
@@ -213,14 +216,15 @@ const Product = () => {
                 OverAll
               </option>
               {stores.map((store, index) => (
-                <option key={index} value={store.location}>
-                  {store.location}
+                <option key={index} value={store.region}>
+                  {store.region}
                 </option>
               ))}
             </select>
           </div>
 
-          <table style={tableStyle}>
+          <div>
+            {currentProducts.length>0 ? <table style={tableStyle}>
             <thead style={tableHeaderStyle}>
               <tr>
                 <th style={tableCellStyle}>S.No</th>
@@ -228,6 +232,7 @@ const Product = () => {
                 <th style={tableCellStyle}>Name</th>
                 <th style={tableCellStyle}>Stock</th>
                 <th style={tableCellStyle}>Price/Unit</th>
+                <th style={tableCellStyle}>Region</th>
                 <th style={tableCellStyle}>Actions</th>
               </tr>
             </thead>
@@ -239,6 +244,7 @@ const Product = () => {
                   <td style={tableCellStyle}>{product.productName}</td>
                   <td style={tableCellStyle}>{product.totalStock || product.storeStock}</td>
                   <td style={tableCellStyle}>{product.pricePerUnit}</td>
+                  <td style={tableCellStyle}>{product.region}</td>
                   <td style={tableCellStyle}>
                     <div style={{ display: "flex", justifyContent: "center" }}>
                       <button
@@ -261,7 +267,8 @@ const Product = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table>:(<div className="flex justify-center items-center text-gray-700"><p>No Data to Display</p></div>)}
+          </div>
 
           {/* Pagination Controls */}
           <div style={paginationStyle}>
@@ -318,7 +325,7 @@ const Product = () => {
               />
             </label>
             <label style={formLabelStyle}>
-              Name:
+              Product Name:
               <input
                 type="text"
                 value={
@@ -342,7 +349,7 @@ const Product = () => {
               />
             </label>
             <label style={formLabelStyle}>
-              Stock:
+              Total Stock:
               <input
                 type="number"
                 value={
@@ -383,6 +390,30 @@ const Product = () => {
                     : setNewProduct({
                         ...newProduct,
                         pricePerUnit: e.target.value,
+                      })
+                }
+                required
+                style={formInputStyle}
+              />
+            </label>
+            <label style={formLabelStyle}>
+              Region:
+              <input
+                type="text"
+                value={
+                  editingProduct
+                    ? editingProduct.region
+                    : newProduct.region
+                }
+                onChange={(e) =>
+                  editingProduct
+                    ? setEditingProduct({
+                        ...editingProduct,
+                        region: e.target.value,
+                      })
+                    : setNewProduct({
+                        ...newProduct,
+                        region: e.target.value,
                       })
                 }
                 required
@@ -437,7 +468,7 @@ const paginationInfoStyle = {
 const containerStyle = {
   padding: "20px",
   fontFamily: "'Roboto', sans-serif",
-  maxWidth: "800px",
+  maxWidth: "FULL",
   margin: "0 auto",
   backgroundColor: "#f9f9f9",
   borderRadius: "10px",

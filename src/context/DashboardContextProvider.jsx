@@ -8,7 +8,8 @@ import axios from "axios";
 function DashboardContextProvider({ children }) {
   const [merged, setMerged] = useState(Merged); // Default to Merged data
   const [history, setHistory] = useState(History); // Default to History data
-
+  const [sales,setSales] = useState(false)
+  const update=(flag)=>{setSales(flag)}
   const getDashboardData = async () => {
     try {
       // Example: Fetch data from a backend API
@@ -33,7 +34,7 @@ function DashboardContextProvider({ children }) {
   }, []);
 
   return (
-    <DashboardContext.Provider value={{ merged, history }}>
+    <DashboardContext.Provider value={{ merged, history, sales,update }}>
       {children}
     </DashboardContext.Provider>
   );

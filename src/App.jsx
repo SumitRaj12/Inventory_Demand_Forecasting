@@ -9,6 +9,7 @@ import Product from "./pages/Products.jsx";
 import Sales from "./pages/Sales.jsx";
 import Employee from "./pages/Employee.jsx";
 import ChangePassword from "./components/changePassword.jsx";
+import { SalesContextProvider } from "./context/salesUpdate.context";
 
 import Forecasting from "./pages/forecast";
 import Prediction from "./pages/Prediction";

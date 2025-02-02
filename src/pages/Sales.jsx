@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { DateFormat } from "@/constants/dateFormatter";
+import { SalesContext } from "@/context/salesUpdate.context.jsx";
 
 const Sales = () => {
   const [salesData, setSalesData] = useState([]);
   const [file, setFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1); // To track the current page
-
+  const {Sales,update} = useContext(SalesContext);
   const fetchSalesData = async () => {
     try {
       const response = await axios.get(
@@ -18,6 +18,7 @@ const Sales = () => {
       );
       console.log(response.data);
       setSalesData(response.data.sales);
+      if(response.data.sales.length>0) update(true)
     } catch (err) {
       console.error("Error fetching sales data:", err);
     }
@@ -45,6 +46,7 @@ const Sales = () => {
       toast.success(response.data.message);
       setFile(null);
       fetchSalesData();
+      update(true);
     } catch (error) {
       console.error("Error uploading file:", error);
       toast.error(error.response?.data.message || "File upload failed");
@@ -77,7 +79,7 @@ const Sales = () => {
       style={{
         padding: "20px",
         fontFamily: "'Roboto', sans-serif",
-        maxWidth: "800px",
+        maxWidth: "full",
         margin: "0 auto",
         backgroundColor: "#f9f9f9",
         borderRadius: "10px",
@@ -129,7 +131,8 @@ const Sales = () => {
       </div>
 
       <div style={{ overflowX: "hidden" }}>
-        <table
+      {/*  */}
+        {currentSalesData.length > 0?(<table
           style={{
             width: "100%",
             borderCollapse: "collapse",
@@ -143,30 +146,47 @@ const Sales = () => {
         >
           <thead style={{ backgroundColor: "#007BFF", color: "#fff" }}>
             <tr>
-              <th style={tableHeaderStyle}>S.No</th>
               <th style={tableHeaderStyle}>Product ID</th>
               <th style={tableHeaderStyle}>Product Name</th>
+              <th style={tableHeaderStyle}>Date</th>
+              <th style={tableHeaderStyle}>Month</th>
               <th style={tableHeaderStyle}>Units Sold</th>
               <th style={tableHeaderStyle}>Sales</th>
-              <th style={tableHeaderStyle}>Month</th>
+              {/* <th style={tableHeaderStyle}>WeekDay</th> */}
+              <th style={tableHeaderStyle}>Festival</th>
+              <th style={tableHeaderStyle}>Promotion</th>
+              <th style={tableHeaderStyle}>Price/Product</th>
+              <th style={tableHeaderStyle}>Ad Spent</th>
+              {/* <th style={tableHeaderStyle}>Weather</th> */}
+              <th style={tableHeaderStyle}>Customer Segment</th>
+              <th style={tableHeaderStyle}>Region</th>
             </tr>
           </thead>
           <tbody>
             {currentSalesData.map((sale, index) => (
               <tr key={index}>
-                <td style={tableCellStyle}>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                {/* <td style={tableCellStyle}>{(currentPage - 1) * itemsPerPage + index + 1}</td> */}
                 <td style={tableCellStyle}>{sale.productId}</td>
                 <td style={tableCellStyle}>{sale.productName}</td>
+                <td style={tableCellStyle}>{sale.date}</td>
+                <td style={tableCellStyle}>{sale.month}</td>
                 <td style={tableCellStyle}>{sale.unitsSold}</td>
                 <td style={tableCellStyle}>{sale.sales}</td>
-                <td style={tableCellStyle}>{sale.month}</td>
+                {/* <td style={tableCellStyle}>{sale.weekday}</td> */}
+                <td style={tableCellStyle}>{(sale.festival)?"Yes":"No"}</td>
+                <td style={tableCellStyle}>{(sale.promotion)?"No":"Yes"}</td>
+                <td style={tableCellStyle}>{sale.pricePerUnit}</td>
+                <td style={tableCellStyle}>{sale.adSpent}</td>
+                {/* <td style={tableCellStyle}>{sale.weather}</td> */}
+                <td style={tableCellStyle}>{sale.customerSegment}</td>
+                <td style={tableCellStyle}>{sale.region}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      ):(<div className="flex justify-center items-center text-center h-full"><p className="text-gray-700 ">No Data to Display</p></div>)}
       </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      {currentSalesData.length>0?(<div style={{ display: "flex", justifyContent: "space-between" }}>
         <button
           onClick={handlePrevPage}
           disabled={currentPage === 1}
@@ -181,7 +201,8 @@ const Sales = () => {
         >
           Next
         </button>
-      </div>
+      </div>):("")}
+      
     </div>
   );
 };
