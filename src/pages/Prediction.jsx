@@ -17,7 +17,7 @@ function Prediction() {
   const [searchValue, setSearchValue] = useState(""); // Selected value from the search dropdown
   const [Stores, setStore] = useState([]);
   const [Products, setProduct] = useState([]);
-  const completPrediction = async () => {
+  const completePrediction = async () => {
     try {
       // Start loading
       setIsLoading(true);
@@ -108,12 +108,14 @@ function Prediction() {
     setFilter(selectedFilter);
     setSearchValue(""); // Reset search value when filter changes
     // Update search options based on selected filter
-    if (selectedFilter === "store") {
+    if (selectedFilter === "region") {
       // const stores = [...new Set(data.map(item => item.store))]; // Unique store values
       setSearchOptions(Stores);
+      console.log(Stores)
     } else if (selectedFilter === "product") {
       // const products = [...new Set(data.map(item => item.product_name))]; // Unique product names
       setSearchOptions(Products);
+      console.log(Products)
     }
   };
 
@@ -128,11 +130,11 @@ function Prediction() {
       setFilteredData([]);
       try {
         let response = null;
-        if (filter === "store") {
+        if (filter === "region") {
           response = await axios.post(
             "http://localhost:3000/api/v1/forecast/store-forecast",
             {
-              location: searchValue,
+              storeId: searchValue,
             },
             {
               withCredentials: true,
@@ -157,116 +159,120 @@ function Prediction() {
       }
     }
   };
-
-  return (
-    <div className="flex flex-col items-center min-h-screen bg-gradient-to-r from-blue-50 via-white to-blue-50 px-4 space-y-8">
-      {/* Heading Section */}
-      <h1 className="text-4xl font-bold text-gray-800 text-center mb-8">
-        Sales Prediction
-      </h1>
-
-      {/* Button Section */}
-      {!isReportGenerated && (
-        <div className="flex flex-col items-center space-y-2 mb-10">
-          <button
-            className={`bg-green-600 text-white px-8 py-3 rounded-full text-lg hover:bg-green-700 transition-all shadow-md flex items-center gap-2 ${
-              isDisabled ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-            onClick={completPrediction}
-            disabled={isDisabled} // Disable button during prediction
-          >
-            {isLoading ? (
-              <svg
-                className="animate-spin h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                ></path>
-              </svg>
-            ) : (
-              "Get Complete Prediction"
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* Filter and Search Section */}
-      {isReportGenerated && (
-        <div className="flex flex-col items-center space-y-4 mb-10">
-          {/* Filter Dropdown */}
-          <select
-            className="p-3 w-full max-w-md border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={filter}
-            onChange={handleFilterChange}
-          >
-            <option value="">Select Filter</option>
-            <option value="store">Store</option>
-            <option value="product">Product</option>
-          </select>
-
-          {/* Search Dropdown */}
-          {filter && (
+  const regionMap = {
+    1: "North",
+    2: "South",
+    3: "East",
+    4: "West",
+  };
+  
+    return (
+      <div className="flex flex-col items-center min-h-screen bg-gradient-to-r from-blue-50 via-white to-blue-50 px-4 space-y-8">
+        {/* Heading Section */}
+        <h1 className="text-4xl font-bold text-gray-800 text-center mb-8">
+          Sales Prediction
+        </h1>
+  
+        {/* Button Section */}
+        {!isReportGenerated && (
+          <div className="flex flex-col items-center space-y-2 mb-10">
+            <button
+              className={`bg-green-600 text-white px-8 py-3 rounded-full text-lg hover:bg-green-700 transition-all shadow-md flex items-center gap-2 ${
+                isDisabled ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+              onClick={completePrediction} // Fixed function name
+              disabled={isDisabled}
+            >
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  ></path>
+                </svg>
+              ) : (
+                "Get Complete Prediction"
+              )}
+            </button>
+          </div>
+        )}
+  
+        {/* Filter and Search Section */}
+        {isReportGenerated && (
+          <div className="flex flex-col items-center space-y-4 mb-10">
+            {/* Filter Dropdown */}
             <select
               className="p-3 w-full max-w-md border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchValue}
-              onChange={handleSearchChange}
+              value={filter}
+              onChange={handleFilterChange}
             >
-              <option value="">
-                Select {filter === "store" ? "Store" : "Product"}
-              </option>
-              {searchOptions.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
+              <option value="">Select Filter</option>
+              <option value="region">Region</option>
+              <option value="product">Product</option>
             </select>
-          )}
-
-          {/* Fetch Data Button */}
-          {filter && searchValue && (
-            <button
-              onClick={fetchFilteredData}
-              className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg hover:bg-blue-700 transition-all shadow-md"
-            >
-              Search
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Filtered Data */}
-      {filteredData.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {" "}
-          {filteredData.map((item) => (
-            <Card key={item.productId} className="p-4">
-              {" "}
-              <h2 className="text-xl font-semibold text-gray-800">
-                {item.product_name}
-              </h2>
-              <p>Store: {item.location}</p>{" "}
-              <p>Sales: {Math.floor(item.predicted_unit)}</p>
-              <p>Month: {item.month}</p>
-            </Card>
-          ))}
-          
-        </div>
-      )}
-    </div>
-  );
-}
+  
+            {/* Search Dropdown */}
+            {filter && (
+              <select
+                className="p-3 w-full max-w-md border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={searchValue}
+                onChange={handleSearchChange}
+              >
+                <option value="">
+                  Select {filter === "region" ? "Region" : "Product"}
+                </option>
+                {searchOptions.map((option, index) => (
+                  <option key={index} value={option}>
+                    {filter === "region" ? regionMap[option] : option} {/* Fixed issue */}
+                  </option>
+                ))}
+              </select>
+            )}
+  
+            {/* Fetch Data Button */}
+            {filter && searchValue && (
+              <button
+                onClick={fetchFilteredData}
+                className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg hover:bg-blue-700 transition-all shadow-md"
+              >
+                Search
+              </button>
+            )}
+          </div>
+        )}
+  
+        {/* Filtered Data */}
+        {filteredData.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {filteredData.map((item) => (
+              <Card key={item.productId} className="p-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {item.product_name}
+                </h2>
+                <p>Store: {regionMap[item.storeId] || "Unknown"}</p> {/* Added fallback */}
+                <p>Sales: {Math.floor(item.predicted_unit)}</p>
+                <p>Month: {item.month}</p>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+ 
 
 export default Prediction;
